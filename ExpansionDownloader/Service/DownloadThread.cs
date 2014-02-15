@@ -104,7 +104,7 @@ namespace ExpansionDownloader.Service
 
             var state = new State(this.downloadInfo, this.downloaderService);
             PowerManager.WakeLock wakeLock = null;
-            var finalStatus = DownloadStatus.UnknownError;
+            var finalStatus = ExpansionDownloader.DownloadStatus.UnknownError;
 
             try
             {
@@ -154,7 +154,7 @@ namespace ExpansionDownloader.Service
                 Log.Debug(Tag, "DownloadThread :   at " + this.downloadInfo.Uri);
 
                 this.FinalizeDestinationFile(state);
-                finalStatus = DownloadStatus.Success;
+                finalStatus = ExpansionDownloader.DownloadStatus.Success;
             }
             catch (StopRequestException error)
             {
@@ -168,7 +168,7 @@ namespace ExpansionDownloader.Service
             {
                 // sometimes the socket code throws unchecked exceptions
                 Debug.WriteLine("LVLDL Exception for {0}: {1}", this.downloadInfo.FileName, ex.Message);
-                finalStatus = DownloadStatus.UnknownError;
+                finalStatus = ExpansionDownloader.DownloadStatus.UnknownError;
             }
             finally
             {
@@ -231,7 +231,7 @@ namespace ExpansionDownloader.Service
         /// <param name="finalStatus">
         /// The final Status.
         /// </param>
-        private static void CleanupDestination(State state, DownloadStatus finalStatus)
+        private static void CleanupDestination(State state, ExpansionDownloader.DownloadStatus finalStatus)
         {
             CloseDestination(state);
             if (state.Filename != null && finalStatus.IsError() && File.Exists(state.Filename))
@@ -276,19 +276,19 @@ namespace ExpansionDownloader.Service
         /// The status Code.
         /// </param>
         private static void HandleOtherStatus(InnerState innerState, HttpStatusCode statusCode)
-        {
-            DownloadStatus finalStatus;
-            var downloadStatus = (DownloadStatus)statusCode;
+        {            
+            ExpansionDownloader.DownloadStatus finalStatus;
+            var DownloadStatus = (ExpansionDownloader.DownloadStatus)statusCode;
 
-            if (downloadStatus.IsError())
+            if (DownloadStatus.IsError())
             {
-                finalStatus = downloadStatus;
+                finalStatus = DownloadStatus;
             }
-            else if (downloadStatus.IsRedirect())
+            else if (DownloadStatus.IsRedirect())
             {
                 finalStatus = DownloadStatus.UnhandledRedirect;
             }
-            else if (innerState.ContinuingDownload && downloadStatus == DownloadStatus.Success)
+            else if (innerState.ContinuingDownload && DownloadStatus == ExpansionDownloader.DownloadStatus.Success)
             {
                 finalStatus = DownloadStatus.CannotResume;
             }
@@ -333,7 +333,7 @@ namespace ExpansionDownloader.Service
             state.RetryAfter *= 1000;
 
             throw new StopRequestException(
-                DownloadStatus.WaitingToRetry, "got 503 Service Unavailable, will retry later");
+                ExpansionDownloader.DownloadStatus.WaitingToRetry, "got 503 Service Unavailable, will retry later");
         }
 
         /// <summary>
@@ -410,7 +410,7 @@ namespace ExpansionDownloader.Service
                     if (!Helpers.IsExternalMediaMounted)
                     {
                         throw new StopRequestException(
-                            DownloadStatus.DeviceNotFoundError, 
+                            ExpansionDownloader.DownloadStatus.DeviceNotFoundError, 
                             "external media not mounted while writing destination file");
                     }
 
@@ -419,13 +419,13 @@ namespace ExpansionDownloader.Service
                     if (availableBytes < bytesRead)
                     {
                         throw new StopRequestException(
-                            DownloadStatus.InsufficientSpaceError, 
+                            ExpansionDownloader.DownloadStatus.InsufficientSpaceError, 
                             "insufficient space while writing destination file", 
                             ex);
                     }
 
                     throw new StopRequestException(
-                        DownloadStatus.FileError, "while writing destination file: " + ex.Message, ex);
+                        ExpansionDownloader.DownloadStatus.FileError, "while writing destination file: " + ex.Message, ex);
                 }
             }
         }
@@ -442,15 +442,15 @@ namespace ExpansionDownloader.Service
                 case NetworkDisabledState.Ok:
                     return;
                 case NetworkDisabledState.NoConnection:
-                    throw new StopRequestException(DownloadStatus.WaitingForNetwork, "waiting for network to return");
+                    throw new StopRequestException(ExpansionDownloader.DownloadStatus.WaitingForNetwork, "waiting for network to return");
                 case NetworkDisabledState.TypeDisallowedByRequestor:
                     throw new StopRequestException(
-                        DownloadStatus.QueuedForWifiOrCellularPermission, 
+                        ExpansionDownloader.DownloadStatus.QueuedForWifiOrCellularPermission, 
                         "waiting for wifi or for download over cellular to be authorized");
                 case NetworkDisabledState.CannotUseRoaming:
-                    throw new StopRequestException(DownloadStatus.WaitingForNetwork, "roaming is not allowed");
+                    throw new StopRequestException(ExpansionDownloader.DownloadStatus.WaitingForNetwork, "roaming is not allowed");
                 case NetworkDisabledState.UnusableDueToSize:
-                    throw new StopRequestException(DownloadStatus.QueuedForWifi, "waiting for wifi");
+                    throw new StopRequestException(ExpansionDownloader.DownloadStatus.QueuedForWifi, "waiting for wifi");
             }
         }
 
@@ -462,7 +462,7 @@ namespace ExpansionDownloader.Service
         {
             if (this.downloaderService.Control == ControlAction.Paused)
             {
-                if (this.downloaderService.Status == DownloadStatus.PausedByApp)
+                if (this.downloaderService.Status == ExpansionDownloader.DownloadStatus.PausedByApp)
                 {
                     throw new StopRequestException(this.downloaderService.Status, "download paused");
                 }
@@ -526,13 +526,13 @@ namespace ExpansionDownloader.Service
                     }
                     catch (Exception)
                     {
-                        throw new StopRequestException(DownloadStatus.FileError, "unable to finalize destination file");
+                        throw new StopRequestException(ExpansionDownloader.DownloadStatus.FileError, "unable to finalize destination file");
                     }
                 }
                 else
                 {
                     throw new StopRequestException(
-                        DownloadStatus.FileDeliveredIncorrectly, 
+                        ExpansionDownloader.DownloadStatus.FileDeliveredIncorrectly, 
                         "file delivered with incorrect size. probably due to network not browser configured");
                 }
             }
@@ -545,24 +545,24 @@ namespace ExpansionDownloader.Service
         /// The state.
         /// </param>
         /// <returns>
-        /// The ExpansionDownloader.DownloadStatus.
+        /// The ExpansionDownloader.ExpansionDownloader.DownloadStatus.
         /// </returns>
-        private DownloadStatus GetFinalStatusForHttpError(State state)
+        private ExpansionDownloader.DownloadStatus GetFinalStatusForHttpError(State state)
         {
             if (this.downloaderService.GetNetworkAvailabilityState() != NetworkDisabledState.Ok)
             {
-                return DownloadStatus.WaitingForNetwork;
+                return ExpansionDownloader.DownloadStatus.WaitingForNetwork;
             }
 
             if (this.downloadInfo.FailedCount < DownloaderService.MaximumRetries)
             {
                 state.CountRetry = true;
-                return DownloadStatus.WaitingToRetry;
+                return ExpansionDownloader.DownloadStatus.WaitingToRetry;
             }
 
             Debug.WriteLine("LVLDL reached max retries for " + this.downloadInfo.FailedCount);
 
-            return DownloadStatus.HttpDataError;
+            return ExpansionDownloader.DownloadStatus.HttpDataError;
         }
 
         /// <summary>
@@ -593,10 +593,10 @@ namespace ExpansionDownloader.Service
             if (lengthMismatched)
             {
                 string message;
-                DownloadStatus finalStatus;
+                ExpansionDownloader.DownloadStatus finalStatus;
                 if (CannotResume(innerState))
                 {
-                    finalStatus = DownloadStatus.CannotResume;
+                    finalStatus = ExpansionDownloader.DownloadStatus.CannotResume;
                     message = "mismatched content length";
                 }
                 else
@@ -672,7 +672,7 @@ namespace ExpansionDownloader.Service
 
             if (state.RedirectCount >= DownloaderService.MaxRedirects)
             {
-                throw new StopRequestException(DownloadStatus.TooManyRedirects, "too many redirects");
+                throw new StopRequestException(ExpansionDownloader.DownloadStatus.TooManyRedirects, "too many redirects");
             }
 
             string header = response.GetResponseHeader("Location");
@@ -691,7 +691,7 @@ namespace ExpansionDownloader.Service
             catch (URISyntaxException)
             {
                 Debug.WriteLine("Couldn't resolve redirect URI {0} for {1}", header, this.downloadInfo.Uri);
-                throw new StopRequestException(DownloadStatus.HttpDataError, "Couldn't resolve redirect URI");
+                throw new StopRequestException(ExpansionDownloader.DownloadStatus.HttpDataError, "Couldn't resolve redirect URI");
             }
 
             ++state.RedirectCount;
@@ -735,7 +735,7 @@ namespace ExpansionDownloader.Service
         /// The got Data.
         /// </param>
         private void NotifyDownloadCompleted(
-            DownloadStatus status, bool countRetry, int retryAfter, int redirectCount, bool gotData)
+            ExpansionDownloader.DownloadStatus status, bool countRetry, int retryAfter, int redirectCount, bool gotData)
         {
             Debug.WriteLine("NotifyDownloadCompleted");
             this.UpdateDownloadDatabase(status, countRetry, retryAfter, redirectCount, gotData);
@@ -817,7 +817,7 @@ namespace ExpansionDownloader.Service
                 catch (Exception ex)
                 {
                     throw new StopRequestException(
-                        DownloadStatus.FileError, string.Format("while opening destination file: {0}", ex), ex);
+                        ExpansionDownloader.DownloadStatus.FileError, string.Format("while opening destination file: {0}", ex), ex);
                 }
 
                 Debug.WriteLine("DownloadThread : writing {0} to {1}", this.downloadInfo.Uri, state.Filename);
@@ -858,10 +858,10 @@ namespace ExpansionDownloader.Service
                 DownloadsDatabase.UpdateDownload(this.downloadInfo);
 
                 string message;
-                DownloadStatus finalStatus;
+                ExpansionDownloader.DownloadStatus finalStatus;
                 if (CannotResume(innerState))
                 {
-                    finalStatus = DownloadStatus.CannotResume;
+                    finalStatus = ExpansionDownloader.DownloadStatus.CannotResume;
                     message =
                         string.Format("while reading response: {0}, can't resume interrupted download with no ETag", ex);
                 }
@@ -908,7 +908,7 @@ namespace ExpansionDownloader.Service
             if (header != null && header != "application/vnd.android.obb")
             {
                 throw new StopRequestException(
-                    DownloadStatus.FileDeliveredIncorrectly, "file delivered with incorrect Mime type");
+                    ExpansionDownloader.DownloadStatus.FileDeliveredIncorrectly, "file delivered with incorrect Mime type");
             }
 
             string headerTransferEncoding = response.GetResponseHeader("Transfer-Encoding");
@@ -950,7 +950,7 @@ namespace ExpansionDownloader.Service
                                || !"chunked".Equals(headerTransferEncoding, StringComparison.OrdinalIgnoreCase));
             if (noSizeInfo)
             {
-                throw new StopRequestException(DownloadStatus.HttpDataError, "can't know size of download, giving up");
+                throw new StopRequestException(ExpansionDownloader.DownloadStatus.HttpDataError, "can't know size of download, giving up");
             }
         }
 
@@ -1007,7 +1007,7 @@ namespace ExpansionDownloader.Service
             catch (IllegalArgumentException ex)
             {
                 throw new StopRequestException(
-                    DownloadStatus.HttpDataError, "while trying to execute request: " + ex.Message, ex);
+                    ExpansionDownloader.DownloadStatus.HttpDataError, "while trying to execute request: " + ex.Message, ex);
             }
             catch (IOException ex)
             {
@@ -1034,7 +1034,7 @@ namespace ExpansionDownloader.Service
                 {
                     // this should never happen
                     throw new StopRequestException(
-                        DownloadStatus.FileError, "found invalid internal destination filename");
+                        ExpansionDownloader.DownloadStatus.FileError, "found invalid internal destination filename");
                 }
 
                 // We're resuming a download that got interrupted
@@ -1052,7 +1052,7 @@ namespace ExpansionDownloader.Service
                         // This should've been caught upon failure
                         File.Delete(state.Filename);
                         throw new StopRequestException(
-                            DownloadStatus.CannotResume, "Trying to resume a download that can't be resumed");
+                            ExpansionDownloader.DownloadStatus.CannotResume, "Trying to resume a download that can't be resumed");
                     }
                     else
                     {
@@ -1064,7 +1064,7 @@ namespace ExpansionDownloader.Service
                         catch (FileNotFoundException exc)
                         {
                             throw new StopRequestException(
-                                DownloadStatus.FileError, "while opening destination for resuming: " + exc, exc);
+                                ExpansionDownloader.DownloadStatus.FileError, "while opening destination for resuming: " + exc, exc);
                         }
 
                         innerState.BytesSoFar = (int)fileLength;
@@ -1154,7 +1154,7 @@ namespace ExpansionDownloader.Service
         /// The got data.
         /// </param>
         private void UpdateDownloadDatabase(
-            DownloadStatus status, bool countRetry, int retryAfter, int redirectCount, bool gotData)
+            ExpansionDownloader.DownloadStatus status, bool countRetry, int retryAfter, int redirectCount, bool gotData)
         {
             this.downloadInfo.Status = status;
             this.downloadInfo.RetryAfter = retryAfter;
@@ -1343,7 +1343,7 @@ namespace ExpansionDownloader.Service
             /// <param name="throwable">
             /// The throwable.
             /// </param>
-            public StopRequestException(DownloadStatus finalStatus, string message, Exception throwable = null)
+            public StopRequestException(ExpansionDownloader.DownloadStatus finalStatus, string message, Exception throwable = null)
                 : base(message, throwable)
             {
                 Debug.WriteLine(message);
@@ -1358,7 +1358,7 @@ namespace ExpansionDownloader.Service
             /// <summary>
             /// Gets the final status.
             /// </summary>
-            public DownloadStatus FinalStatus { get; private set; }
+            public ExpansionDownloader.DownloadStatus FinalStatus { get; private set; }
 
             #endregion
         }

@@ -5,14 +5,14 @@
 //   http://www.apache.org/licenses/LICENSE-2.0.html
 // </copyright>
 // <summary>
-//   Used with <see cref="DownloadStatus" />
+//   Used with <see cref="ExpansionDownloader.DownloadStatus" />
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace ExpansionDownloader
 {
     /// <summary>
-    /// Used with <see cref="DownloadStatus"/>
+    /// Used with <see cref="ExpansionDownloader.DownloadStatus"/>
     /// </summary>
     public class DownloadStatusExtras
     {

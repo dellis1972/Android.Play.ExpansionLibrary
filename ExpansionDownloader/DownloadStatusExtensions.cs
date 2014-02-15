@@ -5,14 +5,14 @@
 //   http://www.apache.org/licenses/LICENSE-2.0.html
 // </copyright>
 // <summary>
-//   Extension methods to help filter the <see cref="DownloadStatus" /> values.
+//   Extension methods to help filter the <see cref="ExpansionDownloader.DownloadStatus" /> values.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace ExpansionDownloader
 {
     /// <summary>
-    /// Extension methods to help filter the <see cref="DownloadStatus"/> values.
+    /// Extension methods to help filter the <see cref="ExpansionDownloader.DownloadStatus"/> values.
     /// </summary>
     public static class DownloadStatusExtensions
     {
@@ -27,9 +27,9 @@ namespace ExpansionDownloader
         /// <returns>
         /// The is status client error.
         /// </returns>
-        public static bool IsClientError(this DownloadStatus status)
+        public static bool IsClientError(this ExpansionDownloader.DownloadStatus status)
         {
-            return status >= DownloadStatus.ClientErrorMinimum && status <= DownloadStatus.ClientErrorMaximum;
+            return status >= ExpansionDownloader.DownloadStatus.ClientErrorMinimum && status <= ExpansionDownloader.DownloadStatus.ClientErrorMaximum;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace ExpansionDownloader
         /// <returns>
         /// The is status completed.
         /// </returns>
-        public static bool IsCompleted(this DownloadStatus status)
+        public static bool IsCompleted(this ExpansionDownloader.DownloadStatus status)
         {
             return status.IsSuccess() || status.IsError();
         }
@@ -56,9 +56,9 @@ namespace ExpansionDownloader
         /// <returns>
         /// The is status error.
         /// </returns>
-        public static bool IsError(this DownloadStatus status)
+        public static bool IsError(this ExpansionDownloader.DownloadStatus status)
         {
-            return status >= DownloadStatus.AnyErrorMinimum && status <= DownloadStatus.AnyErrorMaximum;
+            return status >= ExpansionDownloader.DownloadStatus.AnyErrorMinimum && status <= ExpansionDownloader.DownloadStatus.AnyErrorMaximum;
         }
 
         /// <summary>
@@ -70,9 +70,9 @@ namespace ExpansionDownloader
         /// <returns>
         /// The is status informational.
         /// </returns>
-        public static bool IsInformational(this DownloadStatus status)
+        public static bool IsInformational(this ExpansionDownloader.DownloadStatus status)
         {
-            return status >= DownloadStatus.InformationalMinimum && status <= DownloadStatus.InformationalMaximum;
+            return status >= ExpansionDownloader.DownloadStatus.InformationalMinimum && status <= ExpansionDownloader.DownloadStatus.InformationalMaximum;
         }
 
         /// <summary>
@@ -84,9 +84,9 @@ namespace ExpansionDownloader
         /// <returns>
         /// The status a redirect.
         /// </returns>
-        public static bool IsRedirect(this DownloadStatus status)
+        public static bool IsRedirect(this ExpansionDownloader.DownloadStatus status)
         {
-            return status >= DownloadStatus.RedirectMinimum && status <= DownloadStatus.RedirectMaximum;
+            return status >= ExpansionDownloader.DownloadStatus.RedirectMinimum && status <= ExpansionDownloader.DownloadStatus.RedirectMaximum;
         }
 
         /// <summary>
@@ -98,9 +98,9 @@ namespace ExpansionDownloader
         /// <returns>
         /// The is status server error.
         /// </returns>
-        public static bool IsServerError(this DownloadStatus status)
+        public static bool IsServerError(this ExpansionDownloader.DownloadStatus status)
         {
-            return status >= DownloadStatus.ServerErrorMinimum && status <= DownloadStatus.ServerErrorMaximum;
+            return status >= ExpansionDownloader.DownloadStatus.ServerErrorMinimum && status <= ExpansionDownloader.DownloadStatus.ServerErrorMaximum;
         }
 
         /// <summary>
@@ -112,9 +112,9 @@ namespace ExpansionDownloader
         /// <returns>
         /// The is status success.
         /// </returns>
-        public static bool IsSuccess(this DownloadStatus status)
+        public static bool IsSuccess(this ExpansionDownloader.DownloadStatus status)
         {
-            return status >= DownloadStatus.SuccessMinimum && status <= DownloadStatus.SuccessMaximum;
+            return status >= ExpansionDownloader.DownloadStatus.SuccessMinimum && status <= ExpansionDownloader.DownloadStatus.SuccessMaximum;
         }
 
         #endregion

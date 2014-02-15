@@ -29,7 +29,7 @@ namespace ExpansionDownloader.Database
 
         /// <summary>
         /// </summary>
-        private static volatile DownloadStatus downloadStatus;
+        private static volatile ExpansionDownloader.DownloadStatus downloadStatus;
 
         /// <summary>
         /// </summary>
@@ -48,13 +48,13 @@ namespace ExpansionDownloader.Database
         /// </summary>
         static DownloadsDatabase()
         {
-            downloadStatus = DownloadStatus.Unknown;
+            downloadStatus = ExpansionDownloader.DownloadStatus.Unknown;
             flags = 0;
             versionCode = -1;
 
             if (File.Exists(XmlDatastore.GetDataPath<MetadataTable>()))
             {
-                downloadStatus = XmlDatastore.GetData<MetadataTable>().DownloadStatus;
+                DownloadStatus = XmlDatastore.GetData<MetadataTable>().DownloadStatus;
                 flags = XmlDatastore.GetData<MetadataTable>().Flags;
                 versionCode = XmlDatastore.GetData<MetadataTable>().ApkVersion;
             }
@@ -67,7 +67,7 @@ namespace ExpansionDownloader.Database
         /// <summary>
         /// Gets the status.
         /// </summary>
-        public static DownloadStatus DownloadStatus
+        public static ExpansionDownloader.DownloadStatus DownloadStatus
         {
             get
             {
@@ -118,7 +118,7 @@ namespace ExpansionDownloader.Database
             get
             {
                 var downloadInfos = XmlDatastore.GetData<List<DownloadInfo>>();
-                return !downloadInfos.Any() || downloadInfos.Any(x => x.Status != DownloadStatus.None);
+                return !downloadInfos.Any() || downloadInfos.Any(x => x.Status != ExpansionDownloader.DownloadStatus.None);
             }
         }
 
@@ -217,7 +217,7 @@ namespace ExpansionDownloader.Database
         /// <param name="status">
         /// The download status.
         /// </param>
-        public static void UpdateMetadata(int apkVersion, DownloadStatus status)
+        public static void UpdateMetadata(int apkVersion, ExpansionDownloader.DownloadStatus status)
         {
             var metadata = XmlDatastore.GetData<MetadataTable>();
             metadata.ApkVersion = apkVersion;
@@ -225,7 +225,7 @@ namespace ExpansionDownloader.Database
             XmlDatastore.SaveData(metadata);
 
             versionCode = apkVersion;
-            downloadStatus = status;
+            DownloadStatus = status;
         }
 
         #endregion

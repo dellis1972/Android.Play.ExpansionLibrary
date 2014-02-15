@@ -246,8 +246,8 @@ namespace System.IO.Compression.Zip
                 }
                 catch (FileNotFoundException e)
                 {
-                    Console.WriteLine(e.Message);
-                    Console.Write(e.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                    System.Diagnostics.Debug.Write(e.StackTrace);
                 }
             }
 
@@ -434,8 +434,8 @@ namespace System.IO.Compression.Zip
                 }
                 catch (PackageManager.NameNotFoundException e1)
                 {
-                    Console.WriteLine(e1.ToString());
-                    Console.Write(e1.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(e1.ToString());
+                    System.Diagnostics.Debug.Write(e1.StackTrace);
                 }
 
                 if (packInfo != null)
@@ -462,8 +462,8 @@ namespace System.IO.Compression.Zip
                     }
                     catch (IOException e)
                     {
-                        Console.WriteLine(e.ToString());
-                        Console.Write(e.StackTrace);
+                        System.Diagnostics.Debug.WriteLine(e.ToString());
+                        System.Diagnostics.Debug.Write(e.StackTrace);
                     }
                 }
             }

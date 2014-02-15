@@ -221,7 +221,7 @@ namespace ExpansionDownloader.Service
         /// <summary>
         /// The status.
         /// </summary>
-        private DownloadStatus status;
+        private ExpansionDownloader.DownloadStatus status;
 
         /// <summary>
         /// Bindings to important services
@@ -243,7 +243,7 @@ namespace ExpansionDownloader.Service
             this.serviceConnection = ServiceMarshaller.CreateStub(this);
             this.serviceMessenger = this.serviceConnection.GetMessenger();
 
-            this.Control = DownloadsDatabase.DownloadStatus == DownloadStatus.PausedByApp
+            this.Control = DownloadsDatabase.DownloadStatus == ExpansionDownloader.DownloadStatus.PausedByApp
                                ? ControlAction.Paused
                                : ControlAction.Run;
         }
@@ -311,7 +311,7 @@ namespace ExpansionDownloader.Service
         /// <summary>
         /// Gets or sets the download state
         /// </summary>
-        public DownloadStatus Status
+        public ExpansionDownloader.DownloadStatus Status
         {
             get
             {
@@ -463,7 +463,7 @@ namespace ExpansionDownloader.Service
             }
 
             // we don't have to update LVL. Do we still have a download to start?
-            if (DownloadsDatabase.DownloadStatus == DownloadStatus.None)
+            if (DownloadsDatabase.DownloadStatus == ExpansionDownloader.DownloadStatus.None)
             {
                 List<DownloadInfo> infos = DownloadsDatabase.GetDownloads();
                 IEnumerable<DownloadInfo> existing =
@@ -472,7 +472,7 @@ namespace ExpansionDownloader.Service
                 if (existing.Any())
                 {
                     status = DownloadServiceRequirement.DownloadRequired;
-                    DownloadsDatabase.DownloadStatus = DownloadStatus.Unknown;
+                    DownloadsDatabase.DownloadStatus = ExpansionDownloader.DownloadStatus.Unknown;
                 }
             }
             else
@@ -514,7 +514,7 @@ namespace ExpansionDownloader.Service
                 
                 Log.Debug(Tag,"External media not mounted: {0}", path);
 
-                throw new GenerateSaveFileError(DownloadStatus.DeviceNotFoundError, "external media is not yet mounted");
+                throw new GenerateSaveFileError(ExpansionDownloader.DownloadStatus.DeviceNotFoundError, "external media is not yet mounted");
             }
 
             if (File.Exists(path))
@@ -522,13 +522,13 @@ namespace ExpansionDownloader.Service
                 Log.Debug(Tag,"File already exists: {0}", path);
 
                 throw new GenerateSaveFileError(
-                    DownloadStatus.FileAlreadyExists, "requested destination file already exists");
+                    ExpansionDownloader.DownloadStatus.FileAlreadyExists, "requested destination file already exists");
             }
 
             if (Helpers.GetAvailableBytes(Helpers.GetFileSystemRoot(path)) < filesize)
             {
                 throw new GenerateSaveFileError(
-                    DownloadStatus.InsufficientSpaceError, "insufficient space on external storage");
+                    ExpansionDownloader.DownloadStatus.InsufficientSpaceError, "insufficient space on external storage");
             }
 
             return path;
@@ -691,7 +691,7 @@ namespace ExpansionDownloader.Service
         public void RequestAbortDownload()
         {
             this.Control = ControlAction.Paused;
-            this.Status = DownloadStatus.Canceled;
+            this.Status = ExpansionDownloader.DownloadStatus.Canceled;
         }
 
         /// <summary>
@@ -725,7 +725,7 @@ namespace ExpansionDownloader.Service
         public void RequestPauseDownload()
         {
             this.Control = ControlAction.Paused;
-            this.Status = DownloadStatus.PausedByApp;
+            this.Status = ExpansionDownloader.DownloadStatus.PausedByApp;
         }
 
         /// <summary>
@@ -860,10 +860,10 @@ namespace ExpansionDownloader.Service
                 {
                     // We do an (simple) integrity check on each file, just to 
                     // make sure and to verify that the file matches the state
-                    if (info.Status == DownloadStatus.Success
+                    if (info.Status == ExpansionDownloader.DownloadStatus.Success
                         && !Helpers.DoesFileExist(this, info.FileName, info.TotalBytes, true))
                     {
-                        info.Status = DownloadStatus.None;
+                        info.Status = ExpansionDownloader.DownloadStatus.None;
                         info.CurrentBytes = 0;
                     }
 
@@ -892,7 +892,7 @@ namespace ExpansionDownloader.Service
 
                     long startingCount = info.CurrentBytes;
 
-                    if (info.Status != DownloadStatus.Success)
+                    if (info.Status != ExpansionDownloader.DownloadStatus.Success)
                     {
                         var dt = new DownloadThread(info, this, this.downloadNotification);
                         this.CancelAlarms();
@@ -906,12 +906,12 @@ namespace ExpansionDownloader.Service
                     DownloaderState notifyStatus;
                     switch (info.Status)
                     {
-                        case DownloadStatus.Forbidden:
+                        case ExpansionDownloader.DownloadStatus.Forbidden:
 
                             // the URL is out of date
                             this.UpdateLvl(this);
                             return;
-                        case DownloadStatus.Success:
+                        case ExpansionDownloader.DownloadStatus.Success:
                             this.BytesSoFar += info.CurrentBytes - startingCount;
 
                             if (index < infos.Count() - 1)
@@ -919,10 +919,10 @@ namespace ExpansionDownloader.Service
                                 continue;
                             }
 
-                            DownloadsDatabase.UpdateMetadata(this.packageInfo.VersionCode, DownloadStatus.None);
+                            DownloadsDatabase.UpdateMetadata(this.packageInfo.VersionCode, ExpansionDownloader.DownloadStatus.None);
                             this.downloadNotification.OnDownloadStateChanged(DownloaderState.Completed);
                             return;
-                        case DownloadStatus.FileDeliveredIncorrectly:
+                        case ExpansionDownloader.DownloadStatus.FileDeliveredIncorrectly:
 
                             // we may be on a network that is returning us a web page on redirect
                             notifyStatus = DownloaderState.PausedNetworkSetupFailure;
@@ -930,16 +930,16 @@ namespace ExpansionDownloader.Service
                             DownloadsDatabase.UpdateDownload(info);
                             setWakeWatchdog = true;
                             break;
-                        case DownloadStatus.PausedByApp:
+                        case ExpansionDownloader.DownloadStatus.PausedByApp:
                             notifyStatus = DownloaderState.PausedByRequest;
                             break;
-                        case DownloadStatus.WaitingForNetwork:
-                        case DownloadStatus.WaitingToRetry:
+                        case ExpansionDownloader.DownloadStatus.WaitingForNetwork:
+                        case ExpansionDownloader.DownloadStatus.WaitingToRetry:
                             notifyStatus = DownloaderState.PausedNetworkUnavailable;
                             setWakeWatchdog = true;
                             break;
-                        case DownloadStatus.QueuedForWifi:
-                        case DownloadStatus.QueuedForWifiOrCellularPermission:
+                        case ExpansionDownloader.DownloadStatus.QueuedForWifi:
+                        case ExpansionDownloader.DownloadStatus.QueuedForWifiOrCellularPermission:
 
                             // look for more detail here
                             notifyStatus = this.wifiManager != null && !this.wifiManager.IsWifiEnabled
@@ -947,17 +947,17 @@ namespace ExpansionDownloader.Service
                                                : DownloaderState.PausedNeedCellularPermission;
                             setWakeWatchdog = true;
                             break;
-                        case DownloadStatus.Canceled:
+                        case ExpansionDownloader.DownloadStatus.Canceled:
                             notifyStatus = DownloaderState.FailedCanceled;
                             setWakeWatchdog = true;
                             break;
 
-                        case DownloadStatus.InsufficientSpaceError:
+                        case ExpansionDownloader.DownloadStatus.InsufficientSpaceError:
                             notifyStatus = DownloaderState.FailedSdCardFull;
                             setWakeWatchdog = true;
                             break;
 
-                        case DownloadStatus.DeviceNotFoundError:
+                        case ExpansionDownloader.DownloadStatus.DeviceNotFoundError:
                             notifyStatus = DownloaderState.PausedSdCardUnavailable;
                             setWakeWatchdog = true;
                             break;
@@ -1005,7 +1005,7 @@ namespace ExpansionDownloader.Service
         {
             // the database automatically reads the metadata for version code 
             // and download status when the instance is created
-            return DownloadsDatabase.DownloadStatus == DownloadStatus.None;
+            return DownloadsDatabase.DownloadStatus == ExpansionDownloader.DownloadStatus.None;
         }
 
         /// <summary>
@@ -1170,7 +1170,7 @@ namespace ExpansionDownloader.Service
                 {
                     if (this.networkState.HasFlag(NetworkState.Roaming))
                     {
-                        this.Status = DownloadStatus.WaitingForNetwork;
+                        this.Status = ExpansionDownloader.DownloadStatus.WaitingForNetwork;
                         this.Control = ControlAction.Paused;
                     }
                     else if (this.networkState.HasFlag(NetworkState.IsCellular))
@@ -1178,7 +1178,7 @@ namespace ExpansionDownloader.Service
                         ServiceFlags flags = DownloadsDatabase.Flags;
                         if (!flags.HasFlag(ServiceFlags.FlagsDownloadOverCellular))
                         {
-                            this.Status = DownloadStatus.QueuedForWifi;
+                            this.Status = ExpansionDownloader.DownloadStatus.QueuedForWifi;
                             this.Control = ControlAction.Paused;
                         }
                     }
@@ -1205,7 +1205,7 @@ namespace ExpansionDownloader.Service
             /// <param name="message">
             /// The message.
             /// </param>
-            public GenerateSaveFileError(DownloadStatus status, string message)
+            public GenerateSaveFileError(ExpansionDownloader.DownloadStatus status, string message)
                 : base(message)
             {
                 this.Status = status;
@@ -1218,7 +1218,7 @@ namespace ExpansionDownloader.Service
             /// <summary>
             /// Gets the status.
             /// </summary>
-            public DownloadStatus Status { get; private set; }
+            public ExpansionDownloader.DownloadStatus Status { get; private set; }
 
             #endregion
         }
